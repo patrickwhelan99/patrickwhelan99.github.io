@@ -89,11 +89,23 @@
 
 
 
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-	<script src="/script.js"></script>
+	<div class="slidersSection" id="sliderDiv">
+		<div style="width: 75%; border: 2px dashed var(--secondary)">
+			<div style="display: flex; width: 100%; justify-content: center">
+        	                <h2 style="width: unset"> Year: </h2>   <h2 style="width: unset" id="yearToShowText">
+                	</div>
+	                <div class="slidercontainer">
+        	                <input type="range" min="1" max="10" value="5" class="slider" id="yearToShowSlider">
+                	</div>
 
-
-
+			<div style="display: flex; width: 100%; justify-content: center">
+				<h2 style="width: unset"> # of results to show: </h2>	<h2 style="width: unset" id="resultsToShowText"></h2>
+			</div>
+			<div class="slidercontainer">
+				<input type="range" min="1" max="10" value="5" class="slider" id="resultsToShowSlider">
+			</div>
+		</div>
+	</div>
 
 	<!-- Slideshow container -->
 	<div class="slideshow-container" id="slideshowGraphs">
@@ -130,5 +142,9 @@
 	</div>
 	</div>
 
+
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        <script src="/script.js"></script>
 
 </html>

@@ -1,6 +1,12 @@
 var results;
-var resultsToPrint = 5;
-var resultsToGraph = 50;
+
+var resultsToShowSlider = document.getElementById("resultsToShowSlider");
+var resultsToShowText = document.getElementById("resultsToShowText");
+
+var resultsToPrint = 50;
+var resultsToGraph = resultsToShowSlider.value*10;
+var yearToShow = 0;
+
 var chartType = "";
 var charts = [];
 var chartsDrawn = false;
@@ -40,6 +46,9 @@ function readSingleFile(e)
 	inst = document.getElementById("instructionsPt2");
 	inst.style.display = "none";
 
+	let sliders = document.getElementById("sliderDiv");
+	sliders.style.display = "flex";
+
 	// Should bar charts be stacked
 	chartType = (window.innerWidth > window.innerHeight) ? "bar" : "horizontalBar";
 
@@ -51,7 +60,15 @@ function readSingleFile(e)
 //		displayContents(results, resultsToPrint);
 //		drawGraphs();
 		showSlides(1);
-		var element = document.getElementById('slideshowGraphs');
+
+		let yearSliderText = document.getElementById('yearToShowText');
+		let yearSlider = document.getElementById('yearToShowSlider');
+		yearSlider.max = Array.from(results.get("years").keys())[0];
+		yearSlider.min = Array.from(results.get("years").keys())[Array.from(results.get("years").keys()).length-1] - 1; // 1st option will be 'All'
+		yearSlider.value = yearSlider.min;
+		yearSliderText.innerText = 'All';
+
+		var element = document.getElementById('sliderDiv');
 		element.scrollIntoView();
 		chartsDrawn = true;
   	};
@@ -122,6 +139,9 @@ function displayContents(results, n)
 function analyseData(data)
 {
 	let years = new Map();
+
+	// Totals
+	let yearTotals = new Map();
 	let artists = new Map();
 	let songs = new Map();
 	let searches = new Map();
@@ -135,10 +155,18 @@ function analyseData(data)
 
 		// Years
 		var year = entry.time.substr(0, 4);
-		if(years.has(year))
-			years.set(year, years.get(year) + 1);
-		else
-			years.set(year, 1);
+		if(!years.has(year))
+		{
+			years.set(year, new Map());
+			years.get(year).set("artists", new Map());
+			years.get(year).set("songs", new Map());
+			years.get(year).set("searches", new Map());
+		}
+
+		if(yearTotals.has(year))
+                        yearTotals.set(year, yearTotals.get(year) + 1);
+                else
+                        yearTotals.set(year, 1);
 
 
 
@@ -146,6 +174,13 @@ function analyseData(data)
 		try
 		{
 			let artistName = entry['subtitles'][0]['name'].split(" - ")[0]
+
+			if(years.get(year).get("artists").has(artistName))
+                                years.get(year).get("artists").set(artistName, years.get(year).get("artists").get(artistName) + 1);
+                        else
+                                years.get(year).get("artists").set(artistName, 1);
+
+
 			if(artists.has(artistName))
 				artists.set(artistName, artists.get(artistName) + 1);
 			else
@@ -158,9 +193,17 @@ function analyseData(data)
 		try
 		{
 			if(entry['title'][0] != 'W')
-				throw 'yaught';
+				throw 'yeety feety';
 
 			let songName = entry['title'].split("Watched ")[1];
+
+
+			if(years.get(year).get("songs").has(songName))
+                                years.get(year).get("songs").set(songName, years.get(year).get("songs").get(songName) + 1);
+                        else
+                                years.get(year).get("songs").set(songName, 1);
+
+
 			if(songs.has(songName))
 				songs.set(songName, songs.get(songName) + 1);
 			else
@@ -176,6 +219,14 @@ function analyseData(data)
 				throw 'yeet';
 
 			let searchName = entry['title'].split("Searched for ")[1];
+
+
+			if(years.get(year).get("searches").has(searchName))
+                                years.get(year).get("searches").set(searchName, years.get(year).get("searches").get(searchName) + 1);
+                        else
+                                years.get(year).get("searches").set(searchName, 1);
+
+
 			if(searches.has(searchName))
 				searches.set(searchName, searches.get(searchName) + 1);
 			else
@@ -185,8 +236,16 @@ function analyseData(data)
 	}
 
 
+	for([key, value] of years)
+	{
+		for([key2, value2] of value)
+		{
+			years.get(key).set(key2, new Map([...value2.entries()].sort((a, b) => b[1] - a[1])));
+		}
+	}
 
-	const yearsSorted = years;
+
+	const yearsSorted = yearTotals;
 	const artistsSorted = new Map([...artists.entries()].sort((a, b) => b[1] - a[1]));
 	const songsSorted = new Map([...songs.entries()].sort((a, b) => b[1] - a[1]));
 	const searchesSorted = new Map([...searches.entries()].sort((a, b) => b[1] - a[1]));
@@ -195,7 +254,8 @@ function analyseData(data)
 
 	let map = new Map();
 
-	map.set("years", yearsSorted);
+	map.set("years", years);
+	map.set("yearTotals", yearsSorted);
 	map.set("artists", artistsSorted);
 	map.set("songs", songsSorted);
 	map.set("searches", searchesSorted);
@@ -224,12 +284,12 @@ function graphYears(results, n)
         // The data for our dataset
         data:
         {
-                labels: Array.from(results.get("years").keys()).reverse(),
+                labels: Array.from(results.get("yearTotals").keys()).reverse(),
                 datasets: [{
                         label: 'Total Listens per year',
                         backgroundColor: 'rgb(255, 99, 132)',
                         borderColor: 'rgb(255, 99, 132)',
-                        data: Array.from(results.get("years").values()).reverse()
+                        data: Array.from(results.get("yearTotals").values()).reverse()
                         }]
         },
 
@@ -261,7 +321,20 @@ function graphYears(results, n)
 
 function graphArtists(results, n)
 {
+	let labels, data;
 	// Artists
+	if(yearToShowSlider.value != yearToShowSlider.min)
+	{
+		labels = [ ...results.get("years").get(yearToShowSlider.value).get("artists").keys() ].slice(0, n);
+		data = [ ...results.get("years").get(yearToShowSlider.value).get("artists").values() ].slice(0, n);
+	}
+	else
+	{
+		labels = [ ...results.get("artists").keys() ].slice(0, n);
+		data = [ ...results.get("artists").values() ].slice(0, n);
+	}
+
+
         var ctx = document.getElementById('artistsChart').getContext('2d');
         var chart = new Chart(ctx, {
         // The type of chart we want to create
@@ -270,12 +343,12 @@ function graphArtists(results, n)
         // The data for our dataset
         data:
         {
-                labels: Array.from(results.get("artists").keys()).slice(0, n+1),
+                labels: labels,
                 datasets: [{
                         label: 'Top artist listens',
                         backgroundColor: 'rgb(255, 99, 132)',
                         borderColor: 'rgb(255, 99, 132)',
-                        data: Array.from(results.get("artists").values()).slice(0, n+1)
+                        data: data,
                         }]
         },
 
@@ -286,7 +359,7 @@ function graphArtists(results, n)
 			scales: {
                                 xAxes: [{
 					ticks: {
-	                                               suggestedMin: Array.from(results.get("artists").values())[resultsToGraph]-1,
+	                                               suggestedMin: data[resultsToGraph-1]-1,
 						},
                                         gridLines: {
                                                         color: "white",
@@ -294,7 +367,7 @@ function graphArtists(results, n)
                                 }],
                                 yAxes: [{
 					ticks: {
-	                                               suggestedMin: Array.from(results.get("artists").values())[resultsToGraph]-1,
+	                                               suggestedMin: data[resultsToGraph-1]-1,
 						},
                                         gridLines: {
                                                         color: "white",
@@ -313,6 +386,19 @@ function graphArtists(results, n)
 function graphSongs(results, n)
 {
 	// Songs
+	let labels, data;
+
+	if(yearToShowSlider.value != yearToShowSlider.min)
+	{
+		labels = [ ...results.get("years").get(yearToShowSlider.value).get("songs").keys() ].slice(0, n);
+		data = [ ...results.get("years").get(yearToShowSlider.value).get("songs").values() ].slice(0, n);
+	}
+	else
+	{
+		labels = [ ...results.get("songs").keys() ].slice(0, n);
+		data = [ ...results.get("songs").values() ].slice(0, n);
+	}
+
         var ctx = document.getElementById('songsChart').getContext('2d');
         var chart = new Chart(ctx, {
         // The type of chart we want to create
@@ -321,12 +407,12 @@ function graphSongs(results, n)
         // The data for our dataset
         data:
         {
-                labels: Array.from(results.get("songs").keys()).slice(0, n+1),
+                labels: labels,
                 datasets: [{
                         label: 'Top song listens',
                         backgroundColor: 'rgb(255, 99, 132)',
                         borderColor: 'rgb(255, 99, 132)',
-                        data: Array.from(results.get("songs").values()).slice(0, n+1)
+                        data: data
                         }]
         },
 
@@ -336,13 +422,16 @@ function graphSongs(results, n)
 			scales: {
                                 xAxes: [{
                                         ticks: {
-                                                        suggestedMin: Array.from(results.get("songs").values())[resultsToGraph] - 1,
+	                                               suggestedMin: data[resultsToGraph-1]-1,
                                                 },
 					gridLines: {
                                                         color: "white",
                                                 },
                                 }],
                                 yAxes: [{
+					ticks: {
+	                                               suggestedMin: data[resultsToGraph-1]-1,
+						},
                                         gridLines: {
                                                         color: "white",
                                                 },
@@ -360,6 +449,22 @@ function graphSongs(results, n)
 function graphSearches(results, n)
 {
 	// Searches
+	let labels, data;
+
+	if(yearToShowSlider.value != yearToShowSlider.min)
+	{
+		labels = [ ...results.get("years").get(yearToShowSlider.value).get("searches").keys() ].slice(0, n);
+		data = [ ...results.get("years").get(yearToShowSlider.value).get("searches").values() ].slice(0, n);
+	}
+	else
+	{
+		labels = [ ...results.get("searches").keys() ].slice(0, n);
+		data = [ ...results.get("searches").values() ].slice(0, n);
+	}
+
+	let suggestMin = (data[0]==1) ? 0 : data[resultsToGraph-1]-1;
+
+
 	var ctx = document.getElementById('searchesChart').getContext('2d');
 	var chart = new Chart(ctx, {
 	// The type of chart we want to create
@@ -368,29 +473,34 @@ function graphSearches(results, n)
 	// The data for our dataset
 	data:
 	{
-        	labels: Array.from(results.get("searches").keys()).slice(0, n+1),
+        	labels: labels,
         	datasets: [{
         		label: 'Top searches',
 		        backgroundColor: 'rgb(255, 99, 132)',
 		        borderColor: 'rgb(255, 99, 132)',
-		        data: Array.from(results.get("searches").values()).slice(0, n+1)
+		        data: data
 		        }]
 	},
 
 	// Configuration options go here
+
+
 	options: {
                         responsive: true,
 			maintainAspectRatio: false,
 			scales: {
                                 xAxes: [{
 					ticks: {
-                                                        suggestedMin: Array.from(results.get("searches").values())[resultsToGraph]-1,
+	                                               suggestedMin: suggestMin,
                                                 },
                                         gridLines: {
                                                         color: "white",
                                                 },
                                 }],
                                 yAxes: [{
+					ticks: {
+                                                       suggestedMin: suggestMin,
+                                                },
                                         gridLines: {
                                                         color: "white",
                                                 },
@@ -496,4 +606,33 @@ function showInstructionsPtTwo()
 {
 	let x = document.getElementById("instructionsPt2");
         x.style.display = "inline-flex";
+}
+
+
+
+var resultsToShowSlider = document.getElementById("resultsToShowSlider");
+var resultsToShowText = document.getElementById("resultsToShowText");
+resultsToShowText.innerHTML = " " + resultsToShowSlider.value*10; // Display the default slider value
+
+// Update the current slider value (each time you drag the slider handle)
+resultsToShowSlider.oninput = function() {
+	resultsToShowText.innerHTML = this.value*10;
+	resultsToGraph = this.value*10;
+
+	if(chartsDrawn)
+		onPageResize();
+}
+
+// Update the current slider value (each time you drag the slider handle)
+yearToShowSlider.oninput = function() {
+        yearToShow = this.value;
+
+	if(this.value == yearToShowSlider.min)
+		yearToShowText.innerText = 'All';
+	else
+	        yearToShowText.innerText = this.value;
+
+
+        if(chartsDrawn)
+                onPageResize();
 }
