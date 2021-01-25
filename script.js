@@ -77,6 +77,7 @@ function readSingleFile(e)
 		let contents = e.target.result;
 		let Obj = JSON.parse(contents);
 		results = analyseData(Obj);
+		chartsDrawn = true;
 		redrawGraphs();
 
 		let yearSliderText = document.getElementById('yearToShowText');
@@ -88,7 +89,6 @@ function readSingleFile(e)
 
 		var element = document.getElementById('sliderDiv');
 		element.scrollIntoView();
-		chartsDrawn = true;
   	};
 
   	reader.readAsText(file);
