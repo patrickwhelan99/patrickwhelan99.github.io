@@ -77,7 +77,7 @@ function readSingleFile(e)
 		let contents = e.target.result;
 		let Obj = JSON.parse(contents);
 		results = analyseData(Obj);
-		showSlides(1);
+		redrawGraphs();
 
 		let yearSliderText = document.getElementById('yearToShowText');
 		let yearSlider = document.getElementById('yearToShowSlider');
