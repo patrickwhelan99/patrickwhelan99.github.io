@@ -25,7 +25,7 @@ function redrawGraphs()
 	}
 
 	if(chartsDrawn)
-		currentSlide(slideIndex);
+		showSlides(slideIndex);
 }
 
 function onPageResize()
@@ -449,7 +449,11 @@ function graphArtists(results, n)
 
         // Configuration options go here
         options: {
-                        responsive: true,
+                        title: {
+					display: true,
+					text: "Artists"
+				},
+			responsive: true,
                         maintainAspectRatio: false,
 			scales: {
                                 xAxes: [{
@@ -639,7 +643,8 @@ function plusSlides(n) {
 
 // Thumbnail image controls
 function currentSlide(n) {
-  showSlides(slideIndex = n);
+  slideIndex = n;
+  redrawGraphs();
 }
 
 function showSlides(n) {

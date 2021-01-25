@@ -32,14 +32,8 @@
 
 	<div class="instructionsContainer" id="instructions">
 		<div class="instructionsChild" style="border: none">
-			<div class="splitChild" id="leftInst" style="">
-				<h2> On Android </h2>
-				<p style="text-align: center; font-size: 24"> Settings <br> &darr; <br> Google <br> &darr; <br> Manage your google account <br> &darr; <br> Data & personalization <br> &darr; <br> Download your data </p>
-			</div>
-			<div class="splitChild" style="">
-				<h2 style="width: 100%"> Other </h2>
-				<p style="width: 100%; font-size: 24"> Go to <a href="https://takeout.google.com/">https://takeout.google.com/</a>
-			</div>
+			<h2 style="width: 100%"> <u> Go to </u> </h2>
+			<p style="width: 100%; font-size: 24"> <a style="font-size: xx-large" href="https://takeout.google.com/">https://takeout.google.com/</a></p>
 		</div>
 			<div class="buttonType" style="margin: 20px" onclick="showInstructionsPtTwo()">
 				<h2> Next </h2>
@@ -48,13 +42,14 @@
 			<div id="instructionsPt2" style="display: none; flex-wrap: wrap; justify-content: center">
 				<p class="instructionsText"> We only need one item so first deselect all </p>
 				<img style="width: 50%; display: inherit" src="images/step1.png">
-				<p class="instructionsText"> The data we need is inside &quot;My Activity&quot; not youtube </p>
+				<p class="instructionsText"> The data is inside &quot;My Activity&quot; </p>
 				<img style="width: 50%; display: inherit" src="images/step2.png">
-				<p class="instructionsText">Inside &quot;Multiple formats&quot; select JSON instead of HTML</p>
+				<p class="instructionsText">Under &quot;Multiple formats&quot; select JSON instead of HTML</p>
 				<img style="width: 50%; display: inherit" src="images/step4.png">
 				<p class="instructionsText"> Under &quot;All activity data included&quot; deselect all and scroll down to the bottom where you must select youtube </p>
 				<img style="width: 50%; display: inherit" src="images/step7.png">
-				<p class="instructionsText"> Now just export your data and google should send you an email with a link in a few minutes. Once you've downloaded the data, extract it and upload the JSON file within. The path should be Takeout/My Activity/YouTube/My Activity.json</p>
+				<p class="instructionsText"> Scroll to the bottom of the page and export your data. Google should send you an email with a link in a few minutes. </p>
+                                <p class="instructionsText"> Once you've downloaded the data, extract it and upload the JSON file within. The path should be Takeout/My Activity/YouTube/My Activity.json</p>
 
 				<div class="buttonType" style="display: inherit">
 					<div class="fileUpload" style="display: inherit">
