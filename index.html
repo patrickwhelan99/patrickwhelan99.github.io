@@ -12,50 +12,69 @@
 	</head>
 
 	<div class="titleDiv">
-		<h1> Youtube Music Analyser </h1><br>
+		<h1>Youtube Music Analyser</h1><br>
 		<h2>Uncover your music past</h2>
 	</div>
 
 	<div class="splitContainer">
 		<div class="buttonType">
 			<div class="fileUpload">
-				<h2> I have my file! </h2>
-				<input type="file" accept=".json" class="upload" id="file-input" />
+				<h2>I have my file!</h2>
+				<input type="file" multiple="multiple" accept=".zip, .json, .html" class="upload" id="file-input" />
 			</div>
 		</div>
-		<div class="buttonType" onclick="showInstructions()">
+		<div class="buttonType" id="ShowInstructions">
 			<div id="circle"></div>
 			<a href="#"></a>
-			<h2> I don't have my file! </h2>
+			<h2>I don't have my file!</h2>
                 </div>
+	</div>
+
+	<div class="splitContainer">
+		<div class="buttonType" id="ShowExample">
+			<div class="fileUpload">
+				<h2>Show me an example!</h2>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="instructionsContainer" id="NoData">
+		<h1>:(</h1>
+		<br>
+		<h1>No Data found!</h1>
+		<br>
+		<h2>Please check your data and try again!</h2>
+		<br>
+		<h3>Your data should be in either the JSON or HTML format, follow the instructional GIFs to learn which files to download</h3>
+		<br>
 	</div>
 
 	<div class="instructionsContainer" id="instructions">
 		<div class="instructionsChild" style="border: none">
 			<h2 style="width: 100%"> <u> Go to </u> </h2>
-			<p style="width: 100%; font-size: 24"> <a style="font-size: xx-large" href="https://takeout.google.com/">https://takeout.google.com/</a></p>
+			<p style="width: 100%; font-size: 24"> <a style="font-size: xx-large" href="https://takeout.google.com/" target="_blank" rel="noopener noreferrer">https://takeout.google.com/</a></p>
 		</div>
-			<div class="buttonType" style="margin: 20px" onclick="showInstructionsPtTwo()">
+			<div class="buttonType" style="margin: 20px" id="ShowInstructions2">
 				<h2> Next </h2>
 			</div>
 
 			<div id="instructionsPt2" style="display: none; flex-wrap: wrap; justify-content: center">
-				<p class="instructionsText"> We only need one item so first deselect all </p>
-				<img style="width: 50%; display: inherit" src="images/step1.png">
-				<p class="instructionsText"> The data is inside &quot;My Activity&quot; </p>
-				<img style="width: 50%; display: inherit" src="images/step2.png">
-				<p class="instructionsText">Under &quot;Multiple formats&quot; select JSON instead of HTML</p>
-				<img style="width: 50%; display: inherit" src="images/step4.png">
-				<p class="instructionsText"> Under &quot;All activity data included&quot; deselect all and scroll down to the bottom where you must select youtube </p>
-				<img style="width: 50%; display: inherit" src="images/step7.png">
+				<p class="instructionsText"> We only need 2 items so first deselect all </p>
+				<img style="width: 50%; display: inherit" src="images/1.gif">
+				<p class="instructionsText"> Some data we need is inside &quot;My Activity&quot; </p>
+				<img style="width: 50%; display: inherit" src="images/2.gif">
+				<p class="instructionsText">The rest of the data is in Youtube</p>
+				<img style="width: 50%; display: inherit" src="images/3.gif">
+
 				<p class="instructionsText"> Scroll to the bottom of the page and export your data. Google should send you an email with a link in a few minutes. </p>
-                                <p class="instructionsText"> Once you've downloaded the data, extract it and upload the JSON file within. The path should be Takeout/My Activity/YouTube/My Activity.json</p>
+				<p class="instructionsText"> Once you've downloaded the data, upload the zip file below</p>
 
 				<div class="buttonType" style="display: inherit">
 					<div class="fileUpload" style="display: inherit">
-		                              	<h2> I have my file! </h2>
-                	                	<input type="file" accept=".json" class="upload" id="file-input" style="display: inherit" />
-                        		</div>
+						<h2> I have my file! </h2>
+						<input type="file" multiple="multiple" accept=".zip, .json, .html" class="upload" id="file-input" style="display: inherit" />
+					</div>
 				</div>
 			</div>
 	</div>
@@ -77,6 +96,13 @@
 			<div class="slidercontainer">
 				<input type="range" min="1" max="10" value="5" class="slider" id="resultsToShowSlider">
 			</div>
+
+			<div style="display: flex; width: 100%; justify-content: center; padding-top: 50px; padding-bottom: 50px;">
+				<button class="GraphOrientationButton"><img class="GraphOrientationButtonImage" src="images/Graph_automatic.png"/></button>
+				<button class="GraphOrientationButton"><img class="GraphOrientationButtonImage" src="images/Graph_vertical.png"/></button>
+				<button class="GraphOrientationButton"><img class="GraphOrientationButtonImage" src="images/Graph_horizontal.png"/></button>
+			</div>
+
 		</div>
 	</div>
 
@@ -85,7 +111,15 @@
 
 	<!-- Full-width images with number and caption text -->
 	<div class="mySlides fade">
-		<canvas id="yearsChart" style="width:75%"></canvas>
+		<canvas id="yearsChart"></canvas>
+	</div>
+
+	<div class="mySlides fade">
+		<canvas id="yearTotalsChart"></canvas>
+	</div>
+	
+	<div class="mySlides fade">
+		<canvas id="monthsChart"></canvas>
 	</div>
 
 	<div class="mySlides fade">
@@ -98,26 +132,47 @@
 
 	<div class="mySlides fade">
 		<canvas id="searchesChart"></canvas>
-        </div>
+	</div>
 
+	<div class="mySlides fade">
+		<h1 id="TopNewArtistYear" style="text-align: center"></h1></h1>
+		<h2 id="TopNewArtistName" style="text-align: center"></h2>
+	</div>
 
-		<!-- Next and previous buttons -->
-		<a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-		<a class="next" onclick="plusSlides(1)">&#10095;</a>
+	<!-- Next and previous buttons -->
+	<a class="ChangeSlideButton">&#10094;</a>
+	<a class="ChangeSlideButton" style="right: 0;">&#10095;</a>
+
 	<br>
 
 	<!-- The dots/circles -->
 	<div style="text-align:center">
-		<span class="dot" onclick="currentSlide(1)"></span>
-		<span class="dot" onclick="currentSlide(2)"></span>
-		<span class="dot" onclick="currentSlide(3)"></span>
-		<span class="dot" onclick="currentSlide(4)"></span>
+		<span class="dot"></span>
+		<span class="dot"></span>
+		<span class="dot"></span>
+		<span class="dot"></span>
+		<span class="dot"></span>
+		<span class="dot"></span>
+		<span class="dot"></span>
 	</div>
 	</div>
 
 
+	<div class="instructionsContainer" id="NoDataForType" style="top: 25%">
+		<h1 id="NoDataForTypeTitle"></h1>
+		<br>
+		<h2>There was no data of this type to draw a graph for!</h2>
+		<br>
+	</div>
 
-	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-        <script src="script.js"></script>
 
+
+	<footer>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.1/chart.min.js" type="module"></script>
+
+		<script src="./Scripts/Main.js" type="module"></script>
+		<script src="./Scripts/FileHandling.js" type="module"></script>
+		<script src="./Scripts/Graph.js" type="module"></script>
+
+	</footer>
 </html>
